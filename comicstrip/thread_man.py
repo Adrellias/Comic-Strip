@@ -5,23 +5,26 @@
   For once off and scheduled continues looping jobs
 
   Originaly Based on: http://code.activestate.com/recipes/114644/
-
 '''
 
 import time
 import threading
 
 class Task( threading.Thread ):
-    def __init__( self, action, loopdelay, initdelay ):
+    def __init__( self, action, loopdelay, initdelay , *args ):
         ''' Initiate thread startup '''
+        print args
         self._action = action
         self._loopdelay = loopdelay
         self._initdelay = initdelay
         self._running = 1
-        threading.Thread.__init__(self)
+
+        threading.Thread.__init__( self )
+
+        #self.setDaemon(True)
 
     def __repr__(self):
-        ''' Return the options we passed ''' 
+        ''' Return the options we passed '''
         return '%s %s %s' % (
             self._action, self._loopdelay, self._initdelay )
 
@@ -35,15 +38,18 @@ class Task( threading.Thread ):
         while self._running:
             ''' While we are not being told to stop we will run '''
             start = time.time()
-            print type(self._action)
             self._action()
-            ''' How long did it take for us to run ? add that to the loopdelay '''
-            self._runtime += self._loopdelay
-            time.sleep( self._runtime - start )
+
+            ''' If we have no loopdelay we only run it once '''
+            if not self._loopdelay:
+                self._running = 0
+            else:
+                self._runtime += self._loopdelay
+                time.sleep( self._runtime - start )
 
     def stop( self ):
-        self.running = 0
-
+        print 'Sending stop signal'
+        self._running = 0
 
 class Scheduler:
       ''' Schedule the threads we want to run'''
@@ -58,9 +64,14 @@ class Scheduler:
               rep += '%s\n' % `task`
           return rep
 
-      def AddTask( self, action, loopdelay, initdelay = 0 ):
-          task = Task( action, loopdelay, initdelay )
-          self._tasks.append( task )
+      def AddTask( self, action, loopdelay = 0, initdelay = 0, args = [] ):
+          task = Task( action, loopdelay, initdelay, args )
+
+          if loopdelay:
+              self._tasks.append( task )
+          else:
+              task.start()
+
 
       def StartAllTasks( self ):
           for task in self._tasks:
@@ -70,8 +81,7 @@ class Scheduler:
           for task in self._tasks:
               print 'Stopping task', task
               task.stop()
-              task.join()
-              print 'Stopped'
+              task.join(1)
 
 
 if __name__ == '__main__':
@@ -91,16 +101,11 @@ if __name__ == '__main__':
     s = Scheduler()
 
     # -------- task - loopdelay - initdelay 
-    s.AddTask( Task1,    1.0,      0       )
-    s.AddTask( Task2,    0.5,      0       )
-    s.AddTask( Task3,    1.1,      6       )
+    s.AddTask( Task1,    0,        3,  args=(1,2)  )
+    s.AddTask( Task2,    1.5,      0.25     )
+    s.AddTask( Task3,    0.5,      0.05     )
 
     print s
     s.StartAllTasks()
     raw_input()
     s.StopAllTasks()
-
-
-
-
-
