@@ -13,7 +13,6 @@ import threading
 class Task( threading.Thread ):
     def __init__( self, action, loopdelay, initdelay , *args ):
         ''' Initiate thread startup '''
-        print args
         self._action = action
         self._loopdelay = loopdelay
         self._initdelay = initdelay
@@ -21,7 +20,6 @@ class Task( threading.Thread ):
 
         threading.Thread.__init__( self )
 
-        #self.setDaemon(True)
 
     def __repr__(self):
         ''' Return the options we passed '''
@@ -39,8 +37,6 @@ class Task( threading.Thread ):
             ''' While we are not being told to stop we will run '''
             start = time.time()
             self._action()
-
-            ''' If we have no loopdelay we only run it once '''
             if not self._loopdelay:
                 self._running = 0
             else:
