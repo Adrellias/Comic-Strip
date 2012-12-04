@@ -16,6 +16,7 @@ class Task( threading.Thread ):
         self._action = action
         self._loopdelay = loopdelay
         self._initdelay = initdelay
+        self._args = args[0]
         self._running = 1
 
         threading.Thread.__init__( self )
@@ -37,6 +38,9 @@ class Task( threading.Thread ):
             ''' While we are not being told to stop we will run '''
             start = time.time()
             self._action()
+            if self._args:
+                print self._args
+
             if not self._loopdelay:
                 self._running = 0
             else:
@@ -60,7 +64,7 @@ class Scheduler:
               rep += '%s\n' % `task`
           return rep
 
-      def AddTask( self, action, loopdelay = 0, initdelay = 0, args = [] ):
+      def AddTask( self, action, loopdelay = 0, initdelay = 0, args = None ):
           task = Task( action, loopdelay, initdelay, args )
 
           if loopdelay:
@@ -97,7 +101,7 @@ if __name__ == '__main__':
     s = Scheduler()
 
     # -------- task - loopdelay - initdelay 
-    s.AddTask( Task1,    0,        3,  args=(1,2)  )
+    s.AddTask( Task1,    0,        3,  args=(1) )
     s.AddTask( Task2,    1.5,      0.25     )
     s.AddTask( Task3,    0.5,      0.05     )
 

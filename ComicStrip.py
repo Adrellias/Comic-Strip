@@ -95,6 +95,5 @@ def main():
 
     print comicstrip.SYS_ENCODING
 
-
 if __name__ == "__main__":
     main()
