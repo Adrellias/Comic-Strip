@@ -37,9 +37,11 @@ class Task( threading.Thread ):
         while self._running:
             ''' While we are not being told to stop we will run '''
             start = time.time()
-            self._action()
             if self._args:
-                print self._args
+                self._action(self._args)
+            else:
+                self._action()
+
 
             if not self._loopdelay:
                 self._running = 0
@@ -82,15 +84,17 @@ class Scheduler:
               print 'Stopping task', task
               task.stop()
               task.join(1)
+              print threading.enumerate()
 
 
 if __name__ == '__main__':
 
     def timestamp( s ):
-        print '%.2f : %s' % ( time.time(), s )
+#        print '%.2f : %s' % ( time.time(), s )
+        print '%s : %s' % ( time.time(), s )
 
-    def Task1():
-        timestamp( 'Task1' )
+    def Task1(test = 'None'):
+        timestamp( test )
 
     def Task2():
         timestamp( '\tTask2' )
@@ -102,8 +106,8 @@ if __name__ == '__main__':
 
     # -------- task - loopdelay - initdelay 
     s.AddTask( Task1,    0,        3,  args=(1) )
-    s.AddTask( Task2,    1.5,      0.25     )
-    s.AddTask( Task3,    0.5,      0.05     )
+    s.AddTask( Task2,    60,      0.25     )
+    s.AddTask( Task3,    180,      0.05     )
 
     print s
     s.StartAllTasks()

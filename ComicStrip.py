@@ -64,6 +64,9 @@ def main():
     comicstrip.SYS_ENCODING = None
 
     print comicstrip.MY_FULLNAME
+    print comicstrip.MY_NAME
+    print comicstrip.PROG_DIR
+    print comicstrip.DATA_DIR
 
     try:
         locale.setlocale(locale.LC_ALL, "")
