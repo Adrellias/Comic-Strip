@@ -6,13 +6,12 @@ import locale
 
 import comicstrip
 
-from comicstrip import thread_man
 from comicstrip import db
-
-from lib.configobj import ConfigObj
+from comicstrip import thread_man
 
 #signal.signal(signal.SIGINT,comicstrip.sig_handler)
 #signal.signal(signal.SIGTERM,comicstrip.sig_handler)
+
 
 def daemonize():
     """ Split off and fork this god damn process
@@ -50,6 +49,7 @@ def daemonize():
     dev_null = file('/dev/null', 'r')
     os.dup2(dev_null.fileno(), sys.stdin.fileno())
 
+
 def main():
     """
     comicStrips
@@ -63,10 +63,10 @@ def main():
 
     comicstrip.SYS_ENCODING = None
 
-    print comicstrip.MY_FULLNAME
-    print comicstrip.MY_NAME
-    print comicstrip.PROG_DIR
-    print comicstrip.DATA_DIR
+    print "FULL NAME:" + comicstrip.MY_FULLNAME
+    print "MY NAME:" + comicstrip.MY_NAME
+    print "PROG DIR:" + comicstrip.PROG_DIR
+    print "DATA DIR:" + comicstrip.DATA_DIR
 
     try:
         locale.setlocale(locale.LC_ALL, "")
@@ -93,6 +93,8 @@ def main():
     # Need console logging for comicstrip.py and SickBeard-console.exe
     consoleLogging = (not hasattr(sys, "frozen")) or (comicstrip.MY_NAME.lower().find('-console') > 0)
 
+    print consoleLogging
+
     # Rename the main thread
     threading.currentThread().name = "MAIN"
 
@@ -100,3 +102,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    comicstrip.save_config()
