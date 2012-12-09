@@ -33,10 +33,10 @@ def db_check():
     connection = db.DBConnection(COMIC_DB)
 
     queries = [
-        'CREATE TABLE comic_list (id INTEGER PRIMARY KEY, name text, path text, first_page text, end_page text);',
-        'CREATE TABLE comic_strips (comic_id NUMERIC, strip_no NUMERIC, location TEXT, page_url TEXT);',
-        'CREATE TABLE download_cache (comic_id NUMERIC, strip_no NUMERIC, page_url TEXT, strip_url TEXT);',
-        'CREATE TABLE view_cache (comic_id NUMERIC, last_strip NUMERIC);'
+        'CREATE TABLE IF NOT EXISTS comic_list (id INTEGER PRIMARY KEY, name text, path text, first_page text, end_page text);',
+        'CREATE TABLE IF NOT EXISTS comic_strips (comic_id NUMERIC, strip_no NUMERIC, location TEXT, page_url TEXT);',
+        'CREATE TABLE IF NOT EXISTS download_cache (comic_id NUMERIC, strip_no NUMERIC, page_url TEXT, strip_url TEXT);',
+        'CREATE TABLE IF NOT EXISTS view_cache (comic_id NUMERIC, last_strip NUMERIC);'
     ]
 
     for query in queries:

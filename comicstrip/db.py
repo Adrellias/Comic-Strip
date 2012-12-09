@@ -17,14 +17,13 @@
 # along with Sick Beard.  If not, see <http://www.gnu.org/licenses/>.
 
 import os.path
-import re
 import sqlite3
 import time
 import threading
-
-DATA_DIR = "../"
+import comicstrip
 
 db_lock = threading.Lock()
+
 
 def dbFilename(filename="comic.db", suffix=None):
     """
@@ -34,11 +33,10 @@ def dbFilename(filename="comic.db", suffix=None):
                    automatically, i.e. suffix='v0' will make dbfile.db.v0
     @return: the correct location of the database file.
     """
-    #if suffix:
-    #    filename = "%s.%s" % (filename, suffix)
-    # Hard coding database path for now
-    db_file = 'comic.db'
-    return db_file
+    if suffix:
+        filename = "%s.%s" % (filename, suffix)
+    return os.path.join(comicstrip.DATA_DIR, filename)
+
 
 class DBConnection:
     def __init__(self, filename="comic.db", suffix=None, row_type=None):
@@ -54,7 +52,7 @@ class DBConnection:
 
         with db_lock:
 
-            if query == None:
+            if query is None:
                 return
 
             sqlResult = None
@@ -62,13 +60,13 @@ class DBConnection:
 
             while attempt < 5:
                 try:
-                    if args == None:
+                    if args is None:
                         #logger.log(self.filename+": "+query, logger.DEBUG)
-                        print self.filename+": "+query
+                        print self.filename + ": " + query
                         sqlResult = self.connection.execute(query)
                     else:
                         #logger.log(self.filename+": "+query+" with args "+str(args), logger.DEBUG)
-                        print self.filename+": "+query+" with args "+str(args)
+                        print self.filename + ": " + query + " with args " + str(args)
                         sqlResult = self.connection.execute(query, args)
                     self.connection.commit()
                     # get out of the connection attempt loop since we were successful
