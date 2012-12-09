@@ -102,4 +102,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    comicstrip.save_config()
+    comicstrip.initialize()

@@ -47,4 +47,6 @@ def db_check():
 def initialize():
     ''' Check what we have to check and set paramaters '''
     with INIT_LOCK:
+        db_check()
+        save_config()
         pass
