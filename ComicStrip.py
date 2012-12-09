@@ -86,20 +86,26 @@ def main():
         # On non-unicode builds this will raise an AttributeError, if encoding type is not valid it throws a LookupError
         sys.setdefaultencoding(comicstrip.SYS_ENCODING)
     except:
-        print 'Sorry, you MUST add the Sick Beard folder to the PYTHONPATH environment variable'
+        print 'Sorry, you MUST add the comicStrip folder to the PYTHONPATH environment variable'
         print 'or find another way to force Python to use ' + comicstrip.SYS_ENCODING + ' for string encoding.'
         sys.exit(1)
-
-    # Need console logging for comicstrip.py and SickBeard-console.exe
-    consoleLogging = (not hasattr(sys, "frozen")) or (comicstrip.MY_NAME.lower().find('-console') > 0)
-
-    print consoleLogging
 
     # Rename the main thread
     threading.currentThread().name = "MAIN"
 
-    print comicstrip.SYS_ENCODING
+    # Before we initialize anything lets move to our DATA DIR
+    os.chdir(comicstrip.DATA_DIR)
+
+    # We need to grab the command line options here later.
+    if not comicstrip.CFG_FILE:
+        comicstrip.CFG_FILE = os.path.join(comicstrip.DATA_DIR, "config.ini")
+
+    # Intialize some default options
+    comicstrip.initialize()
+
+    # Make this shit a daemon if wanted
+    # daemonize()
+
 
 if __name__ == "__main__":
     main()
-    comicstrip.initialize()

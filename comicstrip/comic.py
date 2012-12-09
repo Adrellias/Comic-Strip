@@ -2,6 +2,8 @@ import os
 import sys
 import re
 
+import threading
+
 # Used to process URLS
 import requests
 import errno
@@ -14,7 +16,7 @@ from BeautifulSoup import BeautifulSoup as bs
 from PIL import Image
 from StringIO import StringIO
 
-from comicstrip import db
+from lib import db
 
 # First function is to find all the next links and build a list of them with the strip number they should be associated with.
 def page_find(comic_url):
@@ -93,7 +95,7 @@ def grab_strip(comic_id,outpath,strip_no,current_url,replace=False):
 
 def update_engine(comic_id=None,que=None):
     # Connect to the db
-    myDB = db.DBConnection()
+    myDB = db.DBConnection(row_type="dict")
 
     if comic_id != None:
        sqlQuery = 'SELECT id,path,first_page,end_page FROM comic_list WHERE id = (%s)' % (comic_id,)
@@ -101,19 +103,21 @@ def update_engine(comic_id=None,que=None):
        sqlQuery = 'SELECT id,path,first_page,end_page FROM comic_list'
 
     for info in myDB.select(sqlQuery):
+        print info
         print "\r\n"
         # Populate some empty data stores
         db_upd_list = list()
         url_list = dict()
         # Grab the ending page if there is one.
-        end_page = info[3]
+        end_page = info['end_page']
 
-        last_url = myDB.select('SELECT strip_no,page_url FROM comic_strips WHERE comic_id = (?) ORDER BY strip_no DESC LIMIT 1',(info[0],))
+        last_url = myDB.select('SELECT strip_no,page_url FROM comic_strips WHERE comic_id = (?) ORDER BY strip_no DESC LIMIT 1',(info['id'],))
+        print last_url
         if last_url:
-           page_url = page_find(last_url[0][1])
-           strip_no = last_url[0][0]
+           page_url = page_find(last_url[0]['page_url'])
+           strip_no = last_url[0]['strip_no']
         else:
-           page_url = info[2]
+           page_url = info['first_page']
            strip_no = 0
 
         #while page_url != None and page_url not in url_list.values() and page_url != end_page and strip_no < 195:
@@ -123,7 +127,8 @@ def update_engine(comic_id=None,que=None):
               page_url = page_find(page_url)
 
         for strip_no in url_list.keys():
-            myDB.upsert('comic_strips',grab_strip(info[0],info[1],strip_no,url_list[strip_no]),{ 'comic_id': info[0], 'strip_no': strip_no })
+            print "%s %s"  % ('comic_strips',grab_strip(info['id'],info['path'],strip_no,url_list[strip_no]),{ 'comic_id': info['id'], 'strip_no': strip_no })
+            #myDB.upsert('comic_strips',grab_strip(info[0],info[1],strip_no,url_list[strip_no]),{ 'comic_id': info[0], 'strip_no': strip_no })
 
 def path_exists(path):
     try:
