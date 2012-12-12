@@ -23,6 +23,7 @@ SYS_ENCODING = None
 # Config File Defaults
 COMIC_LIST = None
 WEB_PORT = 8080
+WEB_HOST = '0.0.0.0'
 LOG_DIR = 'logs'
 COMIC_DIR = 'strips'
 COMIC_DB = 'comic.db'
@@ -32,12 +33,13 @@ CFG_FILE = None
 
 def save_config():
 
-    global WEB_PORT, LOG_DIR, COMIC_DIR, COMIC_DB
+    global WEB_PORT, WEB_HOST, LOG_DIR, COMIC_DIR, COMIC_DB
     conf_file = open(CFG_FILE, 'w')
 
     new_conf = ConfigParser()
     new_conf.add_section('General')
     new_conf.set('General', 'web_port', WEB_PORT)
+    new_conf.set('General', 'web_host', WEB_HOST)
     new_conf.set('General', 'log_dir', LOG_DIR)
     new_conf.set('General', 'comic_dir', COMIC_DIR)
     new_conf.set('General', 'comic_db', COMIC_DB)
@@ -47,12 +49,13 @@ def save_config():
 
 
 def load_config():
-    global WEB_PORT, LOG_DIR, COMIC_DIR, COMIC_DB
+    global WEB_PORT, WEB_HOST, LOG_DIR, COMIC_DIR, COMIC_DB
 
     conf = ConfigParser()
     conf.read(CFG_FILE)
     try:
         WEB_PORT = conf.get('General', 'web_port')
+        WEB_HOST = conf.get('General', 'web_host')
         LOG_DIR = conf.get('General', 'log_dir')
         COMIC_DIR = conf.get('General', 'comic_dir')
         COMIC_DB = conf.get('General', 'comic_db')
