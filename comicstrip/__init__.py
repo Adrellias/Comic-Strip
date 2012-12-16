@@ -13,6 +13,7 @@ from threading import Lock
 from comicstrip import db
 from comicstrip import thread_man
 from comicstrip import comic
+from comicstrip import logger
 
 # Some Defaults if they are not there alreedy
 
@@ -72,7 +73,7 @@ def load_config():
 
         return True
     except:
-        print "Could not load config file creating default file"
+        logger.log(u'Could not load config file creating default file')
         save_config()
 
 
@@ -116,7 +117,7 @@ def initialize():
             OPS_LIST = [WEB_PORT, LOG_DIR, COMIC_DIR, COMIC_DB, COMIC_INT]
 
             for opts in OPS_LIST:
-                print "Loaded: %s" % (opts)
+                logger.log(u'Loaded: ' + opts)
 
             for folder in dirs:
                 dir_check(os.path.join(DATA_DIR, folder))
@@ -131,10 +132,5 @@ def start():
     with INIT_LOCK:
         if __INITIALIZED__:
             # Search scheduler
-            sched.AddTask(action=comic.update_engine, runImmediatly=True)
+            sched.AddTask(action=comic.update_engine, cycleTime=datetime.timedelta(minutes=30), runImmediatly=True)
             sched.StartAllTasks()
-
-
-def test_thread():
-    print "Inside action"
-    print threading.active_count()

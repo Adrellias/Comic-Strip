@@ -7,6 +7,7 @@ import locale
 import comicstrip
 
 from comicstrip import db
+from comicstrip import thread_man
 
 #signal.signal(signal.SIGINT,comicstrip.sig_handler)
 #signal.signal(signal.SIGTERM,comicstrip.sig_handler)
@@ -59,13 +60,7 @@ def main():
     comicstrip.DATA_DIR = comicstrip.PROG_DIR
     comicstrip.CREATEPID = False
     comicstrip.DAEMON = False
-
     comicstrip.SYS_ENCODING = None
-
-    print "FULL NAME:" + comicstrip.MY_FULLNAME
-    print "MY NAME:" + comicstrip.MY_NAME
-    print "PROG DIR:" + comicstrip.PROG_DIR
-    print "DATA DIR:" + comicstrip.DATA_DIR
 
     try:
         locale.setlocale(locale.LC_ALL, "")
@@ -108,10 +103,11 @@ def main():
     # We would start up the web thread
 
     # Fire up all our threads
-    comicstrip.start()
+    sched = thread_man.Scheduler()
 
-    while True:
-        pass
+    comicstrip.start()
+    raw_input()
+    sched.StopAllTasks()
 
 
 if __name__ == "__main__":
