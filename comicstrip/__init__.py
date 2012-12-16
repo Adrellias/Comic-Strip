@@ -4,12 +4,19 @@
 '''
 import os
 import errno
+import datetime
+import threading
+import time
 
 from ConfigParser import ConfigParser
 from threading import Lock
 from comicstrip import db
+from comicstrip import thread_man
+from comicstrip import comic
 
 # Some Defaults if they are not there alreedy
+
+__INITIALIZED__ = False
 
 # Path related defaults
 MY_FULLNAME = None
@@ -26,6 +33,7 @@ WEB_PORT = 8080
 WEB_HOST = '0.0.0.0'
 LOG_DIR = 'logs'
 COMIC_DIR = 'strips'
+COMIC_INT = 'data'
 COMIC_DB = 'comic.db'
 INIT_LOCK = Lock()
 CFG_FILE = None
@@ -33,7 +41,7 @@ CFG_FILE = None
 
 def save_config():
 
-    global WEB_PORT, WEB_HOST, LOG_DIR, COMIC_DIR, COMIC_DB
+    global WEB_PORT, WEB_HOST, LOG_DIR, COMIC_DIR, COMIC_DB, COMIC_INT
     conf_file = open(CFG_FILE, 'w')
 
     new_conf = ConfigParser()
@@ -42,6 +50,7 @@ def save_config():
     new_conf.set('General', 'web_host', WEB_HOST)
     new_conf.set('General', 'log_dir', LOG_DIR)
     new_conf.set('General', 'comic_dir', COMIC_DIR)
+    new_conf.set('General', 'comic_int', COMIC_INT)
     new_conf.set('General', 'comic_db', COMIC_DB)
     new_conf.write(conf_file)
 
@@ -49,7 +58,7 @@ def save_config():
 
 
 def load_config():
-    global WEB_PORT, WEB_HOST, LOG_DIR, COMIC_DIR, COMIC_DB
+    global WEB_PORT, WEB_HOST, LOG_DIR, COMIC_DIR, COMIC_DB, COMIC_INT
 
     conf = ConfigParser()
     conf.read(CFG_FILE)
@@ -58,6 +67,7 @@ def load_config():
         WEB_HOST = conf.get('General', 'web_host')
         LOG_DIR = conf.get('General', 'log_dir')
         COMIC_DIR = conf.get('General', 'comic_dir')
+        COMIC_INT = conf.get('General', 'comic_int')
         COMIC_DB = conf.get('General', 'comic_db')
 
         return True
@@ -91,17 +101,40 @@ def dir_check(path):
 
 def initialize():
     ''' Check what we have to check and set paramaters '''
+    global __INITIALIZED__
+
+    if __INITIALIZED__:
+        return False
+
     with INIT_LOCK:
         db_check()
 
         if load_config():
             # Lets create some directories
-            dirs = [COMIC_DIR, LOG_DIR]
+            dirs = [COMIC_DIR, LOG_DIR, COMIC_INT]
 
-            OPS_LIST = [WEB_PORT, LOG_DIR, COMIC_DIR, COMIC_DB]
+            OPS_LIST = [WEB_PORT, LOG_DIR, COMIC_DIR, COMIC_DB, COMIC_INT]
 
             for opts in OPS_LIST:
                 print "Loaded: %s" % (opts)
 
             for folder in dirs:
                 dir_check(os.path.join(DATA_DIR, folder))
+
+    __INITIALIZED__ = True
+
+
+def start():
+    global __INITIALIZED__, WEB_PORT, WEB_HOST, LOG_DIR, COMIC_DIR, COMIC_DB
+
+    sched = thread_man.Scheduler()
+    with INIT_LOCK:
+        if __INITIALIZED__:
+            # Search scheduler
+            sched.AddTask(action=comic.update_engine, runImmediatly=True)
+            sched.StartAllTasks()
+
+
+def test_thread():
+    print "Inside action"
+    print threading.active_count()

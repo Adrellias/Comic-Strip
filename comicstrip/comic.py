@@ -16,7 +16,7 @@ from BeautifulSoup import BeautifulSoup as bs
 from PIL import Image
 from StringIO import StringIO
 
-from lib import db
+from comicstrip import db
 
 # First function is to find all the next links and build a list of them with the strip number they should be associated with.
 def page_find(comic_url):
@@ -97,7 +97,7 @@ def update_engine(comic_id=None,que=None):
     # Connect to the db
     myDB = db.DBConnection(row_type="dict")
 
-    if comic_id != None:
+    if comic_id is not None:
        sqlQuery = 'SELECT id,path,first_page,end_page FROM comic_list WHERE id = (%s)' % (comic_id,)
     else:
        sqlQuery = 'SELECT id,path,first_page,end_page FROM comic_list'
@@ -121,13 +121,14 @@ def update_engine(comic_id=None,que=None):
            strip_no = 0
 
         #while page_url != None and page_url not in url_list.values() and page_url != end_page and strip_no < 195:
-        while page_url != None and page_url not in url_list.values() and page_url != end_page:
+        while page_url is not None and page_url not in url_list.values() and page_url != end_page:
               strip_no += 1
               url_list[strip_no] = page_url
               page_url = page_find(page_url)
 
         for strip_no in url_list.keys():
-            print "%s %s"  % ('comic_strips',grab_strip(info['id'],info['path'],strip_no,url_list[strip_no]),{ 'comic_id': info['id'], 'strip_no': strip_no })
+            print strip_no
+            #print "%s %s"  % ('comic_strips',grab_strip(info['id'],info['path'],strip_no,url_list[strip_no]),{ 'comic_id': info['id'], 'strip_no': strip_no })
             #myDB.upsert('comic_strips',grab_strip(info[0],info[1],strip_no,url_list[strip_no]),{ 'comic_id': info[0], 'strip_no': strip_no })
 
 def path_exists(path):

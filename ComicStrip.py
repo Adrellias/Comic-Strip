@@ -7,7 +7,6 @@ import locale
 import comicstrip
 
 from comicstrip import db
-from comicstrip import thread_man
 
 #signal.signal(signal.SIGINT,comicstrip.sig_handler)
 #signal.signal(signal.SIGTERM,comicstrip.sig_handler)
@@ -105,6 +104,14 @@ def main():
 
     # Make this shit a daemon if wanted
     # daemonize()
+
+    # We would start up the web thread
+
+    # Fire up all our threads
+    comicstrip.start()
+
+    while True:
+        pass
 
 
 if __name__ == "__main__":

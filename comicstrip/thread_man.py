@@ -13,18 +13,19 @@
 import time
 import datetime
 import threading
+import Queue
 
 
 class Task(threading.Thread):
 
-    def __init__(self, action, cycleTime, runImmediately, *args):
+    def __init__(self, **kwargs):
         ''' Initiate thread startup '''
-        self.action = action
-        self.cycleTime = cycleTime
-        self.args = args
+        self.action = kwargs.get('action')
+        self.cycleTime = kwargs.get('cycleTime')
+        self.args = kwargs.get('args')
         self.running = 1
 
-        if runImmediately:
+        if kwargs.get('runImmediately'):
             self.lastRun = datetime.datetime.fromordinal(1)
         else:
             self.lastRun = datetime.datetime.now()
@@ -42,14 +43,18 @@ class Task(threading.Thread):
         while True:
             currentTime = datetime.datetime.now()
 
-            if currentTime - self.lastRun > self.cycleTime:
-               self.lastRun = currentTime
-               try:
-                   print self.args
-                   self.action()
+            if currentTime - self.lastRun < self.cycleTime:
+                self.lastRun = currentTime
+                try:
+                    if self.args is not None:
+                        self.action(self.args)
+                    else:
+                        print self.lastRun - self.cycleTime
+                        print datetime.datetime.now()
+                        self.action()
 
-               except Exception, e:
-                   print "Exception generated in thread %s" % (ex(e))
+                except Exception, e:
+                    print "Exception generated in thread %s" % (e)
 
             if not self.running:
                 return
@@ -62,45 +67,45 @@ class Task(threading.Thread):
 
 
 class Scheduler:
-      ''' Schedule the threads we want to run'''
+    ''' Schedule the threads we want to run'''
 
-      def __init__(self):
-          ''' We want a list of tasks ? '''
-          self.tasks = []
+    def __init__(self):
+        ''' We want a list of tasks ? '''
+        self.tasks = []
+
+    def __repr__(self):
+        rep = ''
+        for task in self.tasks:
+            rep += '%s\n' % repr(task)
+        return rep
+
+    def AddTask(self, **kwargs):
+        task = Task(**kwargs)
+
+        if kwargs.get('cycleTime'):
+            self.tasks.append(task)
+        else:
+            task.start()
+
+    def StartAllTasks(self):
+        for task in self.tasks:
+            task.start()
+
+    def StopAllTasks(self):
+        for task in self.tasks:
+            print 'Stopping task', task
+            task.stop()
+            task.join(1)
 
 
-      def __repr__( self ):
-          rep = ''
-          for task in self.tasks:
-              rep += '%s\n' % repr(task)
-          return rep
-
-      def AddTask(self, action, cycleTime=datetime.timedelta(minutes=10), runImmediately=True, *args):
-          task = Task( action, cycleTime, runImmediately, *args )
-
-          if cycleTime:
-              self.tasks.append(task)
-          else:
-              task.start()
-
-
-      def StartAllTasks(self):
-          for task in self.tasks:
-              task.start()
-
-      def StopAllTasks(self):
-          for task in self.tasks:
-              print 'Stopping task', task
-              task.stop()
-              task.join(1)
-
+'''
 if __name__ == '__main__':
 
-    def timestamp( s ):
-        print '%.2f : %s\r' % ( time.time(), s )
+    def timestamp(s):
+        print '%.2f : %s\r' % (time.time(), s)
 
-    def Task1():
-        timestamp('Task1')
+    def Task1(text):
+        timestamp('%s' % (text))
 
     def Task2():
         timestamp('\tTask2')
@@ -111,11 +116,17 @@ if __name__ == '__main__':
     s = Scheduler()
 
     # -------- task - cycleTime - initdelay
-    s.AddTask( Task1,    datetime.timedelta(milliseconds=1), True, 1)
-    s.AddTask( Task2,    datetime.timedelta(milliseconds=1))
-    s.AddTask( Task3,    datetime.timedelta(milliseconds=1))
+
+    task1 = {'action': Task1, 'cycleTime': datetime.timedelta(seconds=3), 'args': 'Running Task1'}
+    task2 = {'action': Task2, 'cycleTime': datetime.timedelta(seconds=30), 'runImmediately': True}
+    task3 = {'action': Task3, 'cycleTime': datetime.timedelta(minutes=1), 'runImmediately': True}
+
+    s.AddTask(**task1)
+    s.AddTask(**task2)
+    s.AddTask(**task3)
 
     print s
     s.StartAllTasks()
     raw_input()
     s.StopAllTasks()
+    '''
