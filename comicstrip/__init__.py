@@ -5,8 +5,8 @@
 import os
 import errno
 import datetime
-import threading
-import time
+#import threading
+#import time
 
 from ConfigParser import ConfigParser
 from threading import Lock
@@ -27,6 +27,7 @@ DATA_DIR = None
 CREATEPID = False
 DAEMON = False
 SYS_ENCODING = None
+TASK_LIST = None
 
 # Config File Defaults
 COMIC_LIST = None
@@ -132,5 +133,5 @@ def start():
     with INIT_LOCK:
         if __INITIALIZED__:
             # Search scheduler
-            sched.AddTask(action=comic.update_engine, cycleTime=datetime.timedelta(minutes=30), runImmediatly=True)
+            sched.AddTask(action=comic.update_engine, cycleTime=datetime.timedelta(hours=1), runImmediatly=True)
             sched.StartAllTasks()

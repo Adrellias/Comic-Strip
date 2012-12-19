@@ -8,6 +8,7 @@ import comicstrip
 
 from comicstrip import db
 from comicstrip import thread_man
+from comicstrip import webserver
 
 #signal.signal(signal.SIGINT,comicstrip.sig_handler)
 #signal.signal(signal.SIGTERM,comicstrip.sig_handler)
@@ -105,7 +106,8 @@ def main():
     # Fire up all our threads
     sched = thread_man.Scheduler()
 
-    comicstrip.start()
+    #comicstrip.start()
+    webserver.webInit()
     raw_input()
     sched.StopAllTasks()
 

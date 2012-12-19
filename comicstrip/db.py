@@ -22,6 +22,8 @@ import time
 import threading
 import comicstrip
 
+from comicstrip import logger
+
 db_lock = threading.Lock()
 
 
@@ -61,12 +63,10 @@ class DBConnection:
             while attempt < 5:
                 try:
                     if args is None:
-                        #logger.log(self.filename+": "+query, logger.DEBUG)
-                        print self.filename + ": " + query
+                        logger.log(self.filename+": "+query)
                         sqlResult = self.connection.execute(query)
                     else:
-                        #logger.log(self.filename+": "+query+" with args "+str(args), logger.DEBUG)
-                        print self.filename + ": " + query + " with args " + str(args)
+                        logger.log(self.filename+": "+query+" with args "+str(args))
                         sqlResult = self.connection.execute(query, args)
                     self.connection.commit()
                     # get out of the connection attempt loop since we were successful
@@ -96,7 +96,7 @@ class DBConnection:
         return sqlResults
 
     def upsert(self, tableName, valueDict, keyDict):
-        print "TB: %s val: %s key: %s" % (tableName,valueDict,keyDict)
+        logger.log(u'TB: ' + str(tableName) + 'val: ' + str(valueDict) + 'key: ' + str(keyDict))
         changesBefore = self.connection.total_changes
 
         genParams = lambda myDict : [x + " = ?" for x in myDict.keys()]

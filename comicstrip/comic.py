@@ -20,6 +20,7 @@ from comicstrip import db
 from comicstrip import logger
 import comicstrip
 
+
 # First function is to find all the next links and build a list of them with the strip number they should be associated with.
 def page_find(comic_url):
     # This will run through all the next pages
@@ -31,7 +32,7 @@ def page_find(comic_url):
         if re.compile(".*next.*", re.IGNORECASE).match(str(links)):
            if links['href'].lower().startswith('http'):
               next_page = links['href']
-              logger.log(u'CUR: ' + comic_url + 'NEXT: ' + next_page)
+              logger.log(u'CUR: ' + comic_url + ' NEXT: ' + next_page)
               return next_page
            else:
               if parsed_url.path and not parsed_url.query:
@@ -40,11 +41,11 @@ def page_find(comic_url):
                  if not re.compile('.*#$.*').match(links['href']):
                     parsed_url[2] = links['href']
                     next_page = urlparse.urlunparse(parsed_url)
-                    logger.log(u'CUR: ' + comic_url + 'NEXT: ' + next_page)
+                    logger.log(u'CUR: ' + comic_url + ' NEXT: ' + next_page)
                  else:
                     next_page = None
               else:
-                 logger.log(u'DEBUG: ' + parsed_url + links['href'])
+                 logger.log(u'DEBUG: ' + str(parsed_url) + ' ' + str(links['href']))
                  next_page = list(parsed_url)
                  # Catch those stupid # refrences to the same page
                  if not re.compile('.*#$.*').match(links['href']):
@@ -54,7 +55,7 @@ def page_find(comic_url):
                        next_page[2] = links['href']
                        next_page[4] = None
                     next_page = urlparse.urlunparse(next_page)
-                    logger.log(u'CUR: ' + comic_url + 'NEXT: ' + next_page)
+                    logger.log(u'CUR: ' + comic_url + ' NEXT: ' + next_page)
                  else:
                     next_page = None
               return next_page
@@ -83,7 +84,7 @@ def grab_strip(comic_id, outpath, strip_no, current_url, replace=False):
               s = StringIO(strip_img.content)
               strip = Image.open(s)
               w,h = strip.size
-              if w > 250 and h > 420 or w > 420 and h > 250:
+              if w > 250 and h > 320 or w > 320 and h > 250:
                  filename = "%s%s" % (strip_no,os.path.splitext(filename)[-1])
                  outpath = os.path.join(comicstrip.COMIC_DIR, outpath)
                  path_exists(outpath)
@@ -98,6 +99,7 @@ def grab_strip(comic_id, outpath, strip_no, current_url, replace=False):
     else:
        return { 'strip_no': strip_no, 'page_url': current_url, 'location': 'SKIPPED' }
 
+
 def update_engine(comic_id=None,que=None):
     # Connect to the db
     myDB = db.DBConnection(row_type="dict")
@@ -109,13 +111,13 @@ def update_engine(comic_id=None,que=None):
 
     for info in myDB.select(sqlQuery):
         # Populate some empty data stores
-        #db_upd_list = list()
+        db_upd_list = list()
         url_list = dict()
-        # Grab the ending page if there is one.
+        # Grab the ending page if there is one. (Page where we cut off looking for next pages)
         end_page = info['end_page']
 
         last_url = myDB.select('SELECT strip_no,page_url FROM comic_strips WHERE comic_id = (?) ORDER BY strip_no DESC LIMIT 1',(info['id'],))
-        logger.log(u'LAST URL: ' + last_url)
+        logger.log(u'LAST URL: ' + str(last_url))
         if last_url:
            page_url = page_find(last_url[0]['page_url'])
            strip_no = last_url[0]['strip_no']
@@ -127,10 +129,14 @@ def update_engine(comic_id=None,que=None):
               strip_no += 1
               url_list[strip_no] = page_url
               page_url = page_find(page_url)
+              logger.log(u'URL LIST: ' + str(len(url_list)))
 
         for strip_no in url_list.keys():
-            print grab_strip(info['id'],info['path'],strip_no,url_list[strip_no])
-            #myDB.upsert('comic_strips', grab_strip(info[0], info[1], strip_no, url_list[strip_no]), { 'comic_id': info[0], 'strip_no': strip_no })
+            myDB.upsert('comic_strips', grab_strip(info['id'], info['path'], strip_no, url_list[strip_no]), { 'comic_id': info['id'], 'strip_no': strip_no })
+
+
+def test():
+    print "Test thread is spawned"
 
 
 def path_exists(path):

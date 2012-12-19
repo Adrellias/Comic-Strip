@@ -13,7 +13,9 @@
 import time
 import datetime
 import threading
-import Queue
+import comicstrip
+
+from comicstrip import logger
 
 
 class Task(threading.Thread):
@@ -23,14 +25,16 @@ class Task(threading.Thread):
         self.action = kwargs.get('action')
         self.cycleTime = kwargs.get('cycleTime')
         self.args = kwargs.get('args')
+        self.runImmediatly = kwargs.get('runImmediatly')
         self.running = 1
 
-        if kwargs.get('runImmediately'):
+        if self.runImmediatly:
             self.lastRun = datetime.datetime.fromordinal(1)
         else:
             self.lastRun = datetime.datetime.now()
 
         threading.Thread.__init__(self)
+        logger.log(u'Thread Init: ' + str(threading.current_thread().name))
 
     def __repr__(self):
         ''' Return the options we passed '''
@@ -39,22 +43,23 @@ class Task(threading.Thread):
 
     def run(self):
         ''' Run the function we want '''
+        logger.log(u'Thread Started: ' + str(threading.current_thread().name))
 
         while True:
             currentTime = datetime.datetime.now()
 
-            if currentTime - self.lastRun < self.cycleTime:
+            if currentTime - self.lastRun > self.cycleTime:
+                logger.log(u'Running task: '  + str(threading.current_thread().name))
                 self.lastRun = currentTime
                 try:
                     if self.args is not None:
                         self.action(self.args)
                     else:
-                        print self.lastRun - self.cycleTime
-                        print datetime.datetime.now()
                         self.action()
 
                 except Exception, e:
-                    print "Exception generated in thread %s" % (e)
+                    raise
+                    logger.log(u'Exception generated in thread ' + e)
 
             if not self.running:
                 return
@@ -62,7 +67,7 @@ class Task(threading.Thread):
             time.sleep(1)
 
     def stop(self):
-        print 'Sending stop signal'
+        logger.log(u'Sending stop signal')
         self.running = 0
 
 
@@ -71,11 +76,13 @@ class Scheduler:
 
     def __init__(self):
         ''' We want a list of tasks ? '''
-        self.tasks = []
+        comicstrip.TASK_LIST = []
+        #self.tasks = []
 
     def __repr__(self):
         rep = ''
-        for task in self.tasks:
+        #for task in self.tasks:
+        for task in comicstrip.TASK_LIST:
             rep += '%s\n' % repr(task)
         return rep
 
@@ -83,19 +90,23 @@ class Scheduler:
         task = Task(**kwargs)
 
         if kwargs.get('cycleTime'):
-            self.tasks.append(task)
+            #self.tasks.append(task)
+            comicstrip.TASK_LIST.append(task)
         else:
             task.start()
 
     def StartAllTasks(self):
-        for task in self.tasks:
+        #for task in self.tasks:
+        for task in comicstrip.TASK_LIST:
             task.start()
 
     def StopAllTasks(self):
-        for task in self.tasks:
-            print 'Stopping task', task
+        #for task in self.tasks:
+        for task in comicstrip.TASK_LIST:
+            logger.log(u'Stopping task ' + str(task))
             task.stop()
-            task.join(1)
+            task.join()
+            logger.log(u'Stopped')
 
 
 '''
