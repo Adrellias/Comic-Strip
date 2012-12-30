@@ -79,6 +79,7 @@ if __name__ == '__main__':
 
     handler = logging.StreamHandler()
     formatter = logging.Formatter("EXTRA:%(name)s:'%(message)s'")
+    #formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s', '%b-%d %H:%M:%S')
     handler.setFormatter(formatter)
     handler.addFilter(Unique())  # new instance of the Unique filter
     logger.addHandler(handler)

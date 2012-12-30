@@ -106,7 +106,7 @@ def main():
     # Fire up all our threads
     sched = thread_man.Scheduler()
 
-    #comicstrip.start()
+    comicstrip.start()
     webserver.webInit()
     raw_input()
     sched.StopAllTasks()

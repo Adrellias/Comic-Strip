@@ -10,7 +10,8 @@ import errno
 import urlparse
 
 # Used to find images
-from BeautifulSoup import BeautifulSoup as bs
+#from BeautifulSoup import BeautifulSoup as bs
+from bs4 import BeautifulSoup as bs
 
 # Used to store images
 from PIL import Image
@@ -80,22 +81,26 @@ def grab_strip(comic_id, outpath, strip_no, current_url, replace=False):
               parsed[4] = None
               strip_img = requests.get(urlparse.urlunparse(parsed))
 
+
            if strip_img.status_code == requests.codes.ok:
               s = StringIO(strip_img.content)
               strip = Image.open(s)
               w,h = strip.size
-              if w > 250 and h > 320 or w > 320 and h > 250:
+
+              if w > 249 and h > 320 or w > 320 and h > 249:
                  filename = "%s%s" % (strip_no,os.path.splitext(filename)[-1])
-                 outpath = os.path.join(comicstrip.COMIC_DIR, outpath)
-                 path_exists(outpath)
-                 outpath = os.path.join(outpath, filename)
+                 save_path = os.path.join(comicstrip.COMIC_DIR, outpath)
+                 path_exists(save_path)
+                 save_path = os.path.join(save_path, filename)
+                 db_path = os.path.join(outpath, filename)
                  logger.log(u'PAGE: ' + current_url + 'IMAGE: ' + filename)
 
-                 if not os.path.exists(outpath):
-                    strip.save(outpath)
+                 if not os.path.exists(save_path):
+                    strip.save(save_path)
                  else:
-                    logger.log(u'FOUND IMAGE: ' + outpath)
-                 return { 'strip_no': strip_no, 'page_url': current_url, 'location': outpath }
+                    logger.log(u'FOUND IMAGE: ' + save_path)
+
+                 return { 'strip_no': strip_no, 'page_url': current_url, 'location': db_path }
     else:
        return { 'strip_no': strip_no, 'page_url': current_url, 'location': 'SKIPPED' }
 
@@ -130,6 +135,9 @@ def update_engine(comic_id=None,que=None):
               url_list[strip_no] = page_url
               page_url = page_find(page_url)
               logger.log(u'URL LIST: ' + str(len(url_list)))
+
+              #if len(url_list) > 5:
+              #    break
 
         for strip_no in url_list.keys():
             myDB.upsert('comic_strips', grab_strip(info['id'], info['path'], strip_no, url_list[strip_no]), { 'comic_id': info['id'], 'strip_no': strip_no })
