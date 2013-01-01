@@ -133,5 +133,5 @@ def start():
     with INIT_LOCK:
         if __INITIALIZED__:
             # Search scheduler
-            sched.AddTask(action=comic.update_engine, cycleTime=datetime.timedelta(hours=1), runImmediatly=True)
+            #sched.AddTask(action=comic.update_engine, cycleTime=datetime.timedelta(hours=1), runImmediatly=True)
             sched.StartAllTasks()
