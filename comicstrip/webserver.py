@@ -22,6 +22,7 @@ class MakoHandler(cherrypy.dispatch.LateParamPageHandler):
         env.update(self.next_handler())
         return self.template.render(**env)
 
+
 class MakoLoader(object):
 
     def __init__(self):
@@ -47,6 +48,7 @@ class MakoLoader(object):
 
 main = MakoLoader()
 cherrypy.tools.mako = cherrypy.Tool('on_start_resource', main)
+
 
 class Root:
     @cherrypy.expose
@@ -95,7 +97,7 @@ def webInit():
           'server.socket_file': "",
           'server.socket_queue_size': 5,
           'server.protocol_version': "HTTP/1.2",
-          'server.log_to_screen': True,
+          'server.log_to_screen': False,
           'server.log_file': "",
           'server.reverse_dns': False,
           'server.thread_pool': 10,
