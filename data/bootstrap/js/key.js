@@ -48,19 +48,20 @@ $(document).ready(function(){
       var inmotion = false;
 
       function nextStrip() {
-             var nextStrip = $('#nextStrip').val();
+             var nextStrip = $('#nextStrip').attr("value");
 
              if (nextStrip != undefined) {
-                 document.location = getAbsolutePath() + '/' + nextStrip;
+//               slideAjax('testajax', getAbsolutePath() + '/' + nextStrip);
+               document.location = getAbsolutePath() + '/' + nextStrip;
              } else {
                return false;
              }
       };
 
       function prevStrip() {
-             var prevStrip = $('#prevStrip').val();
+             var prevStrip = $('#prevStrip').attr("value");
 
-             if (prevStrip != undefined) {
+             if (prevStrip != 'None' && prevStrip != '0') {
                  document.location = getAbsolutePath() + '/' + prevStrip;
              }  else {
                 return false;

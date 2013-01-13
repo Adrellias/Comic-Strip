@@ -6,8 +6,13 @@ import datetime
 import logging
 from comicstrip import db
 
-from mako.template import Template
+#from mako.template import Template
 from mako.lookup import TemplateLookup
+
+
+def update_cache(comicId, stripNo):
+    myDB = db.DBConnection()
+    myDB.upsert('view_cache', {'comic_id': comicId, 'last_strip': stripNo}, {'comic_id': comicId})
 
 
 class MakoHandler(cherrypy.dispatch.LateParamPageHandler):
@@ -56,28 +61,45 @@ class Root:
     def index(self):
         myDB = db.DBConnection()
         stripList = myDB.select("SELECT id,name FROM comic_list")
-        return { 'stripList': stripList }
+        return {'stripList': stripList}
+
 
 class View:
     @cherrypy.expose
-    @cherrypy.tools.mako(filename="view_strip.html")
+    def ajax_strip(self,comicId, stripNo=None):
+        return "<img></img>"
 
-    def strip(self,comicId,stripNo=None):
+    @cherrypy.expose
+    @cherrypy.tools.mako(filename="view.html")
+    def strip(self, comicId, stripNo=None):
+
+        prevStrip = None
+        nextStrip = None
+
         myDB = db.DBConnection()
+
         if not comicId:
-           raise cherrypy.HTTPError(400, "A user id was expected but not supplied.")
-        # Grab the strip from the db
-        comicTitle = myDB.select("SELECT id,name FROM comic_list WHERE id=(?) LIMIT 1",(comicId,))[0][0]
-        lastStrip = myDB.select("SELECT strip_no FROM comic_strips WHERE comic_id=(?) ORDER BY strip_no DESC LIMIT 1",(comicId,))[0][0]
+            raise cherrypy.HTTPError(400, "A user id was expected but not supplied.")
 
-        if stripNo != None:
-           comicStrip = myDB.select("SELECT location FROM comic_strips WHERE comic_id=(?) and strip_no =(?)",(comicId,stripNo,))
+        comicTitle = myDB.select("SELECT id, name FROM comic_list WHERE id=(?) LIMIT 1", (comicId,))[0][1]
+        lastStrip = myDB.select("SELECT strip_no FROM comic_strips WHERE comic_id=(?) ORDER BY strip_no DESC LIMIT 1", (comicId,))[0][0]
+        lastView = myDB.select("SELECT last_strip FROM view_cache WHERE comic_id=(?)", (comicId,))
+
+        if stripNo is not None:
+            comicStrip = myDB.select("SELECT location FROM comic_strips WHERE comic_id=(?) and strip_no =(?)", (comicId, stripNo, ))[0][0]
+            stripNo = int(stripNo)
         else:
-           comicStrip = myDB.select("SELECT location FROM comic_strips WHERE comic_id=(?) and strip_no = 1",(comicId,))
-           stripNo = 1
+            comicStrip = myDB.select("SELECT location FROM comic_strips WHERE comic_id=(?) and strip_no = 1", (comicId, ))[0][0]
+            stripNo = int(1)
 
-        logging.debug("DATA DUMP: %s %s" % (lastStrip,comicTitle))
-        return { 'comicStrip': comicStrip, 'comicTitle': comicTitle, 'lastStrip': int(lastStrip), 'stripNo': int(stripNo), 'comicId': comicId }
+        nextStrip = stripNo + 1
+
+        if nextStrip >= 1:
+            prevStrip = stripNo - 1
+
+        logging.debug("DATA DUMP: %s %s" % (lastStrip, comicTitle))
+        update_cache(comicId, stripNo)
+        return {'comicStrip': comicStrip, 'comicTitle': comicTitle, 'lastStrip': int(lastStrip), 'stripNo': int(stripNo), 'comicId': comicId, 'prevStrip': prevStrip, 'nextStrip': nextStrip}
 
 
 def webInit():

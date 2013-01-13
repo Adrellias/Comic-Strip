@@ -1,22 +1,9 @@
-<%
-comic_title = comicTitle
-next_strip = None
-prev_strip = None
 
-if stripNo != None:
-   next_strip = int(stripNo)
-   next_strip = (next_strip + 1)
-   if next_strip > 1:
-      prev_strip = int(stripNo) - 1
-else:
-   next_strip = 1
-
-%>
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>comicStrip: ${comic_title} - Page: ${stripNo}</title>
+    <title>comicStrip: ${comicTitle} - Page: ${stripNo}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -53,7 +40,7 @@ else:
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="#">comicStrip: ${comic_title}</a>
+          <a class="brand" href="#">comicStrip: ${comicTitle}</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
               <li class="active"><a href="/">Home</a></li>
@@ -66,25 +53,11 @@ else:
     </div>
 
     <div class="container" align=center >
-      %for strip_name in comicStrip:
-           <img  src=/images/${strip_name[0]} class="img-polaroid" />
-      %endfor
-      <div class="pagination" id="comicId" value="${comicId}">
-          <ul>
-          %if prev_strip != None and prev_strip != 0:
-          <li class="enabled" id="prevStrip" value="${prev_strip}"><a href="/view/strip/${comicId}/${prev_strip}">Prev</a></li>
-          %else:
-          <li class="disabled"><a href="">Prev</a></li>
-          %endif
-          %if stripNo != None:
-          <li class="disabled"><a href="">${stripNo}</a></li>
-          %endif
-          %if stripNo != lastStrip:
-          <li class="enabled" id="nextStrip" value="${next_strip}"><a href="/view/strip/${comicId}/${next_strip}">Next</a></li>
-          %endif
-        </ul>
-      </div>
-
+        <div class"testajax" id="testajax"></div>
+        <img  src=/images/${comicStrip} class="img-polaroid" />
+        <div id="prevStrip" value="${prevStrip}"></div>
+        <div id="nextStrip" value="${nextStrip}"></div>
+        <p></p>
     </div> <!-- /container -->
 
     <!-- Le javascript
@@ -103,6 +76,7 @@ else:
     <script src="/bootstrap/assets/js/bootstrap-collapse.js"></script>
     <script src="/bootstrap/assets/js/bootstrap-carousel.js"></script>
     <script src="/bootstrap/assets/js/bootstrap-typeahead.js"></script>
+    <script src="/bootstrap/js/slide.js"></script>
     <script src="/bootstrap/js/key.js"></script>
 
   </body>
