@@ -1,8 +1,5 @@
 import os
-import sys
 import cherrypy
-import sqlite3
-import datetime
 import logging
 from comicstrip import db
 
@@ -59,14 +56,16 @@ class Root:
     @cherrypy.expose
     @cherrypy.tools.mako(filename="home.html")
     def index(self):
-        myDB = db.DBConnection()
+        myDB = db.DBConnection(row_type="dict")
         stripList = myDB.select("SELECT id,name FROM comic_list")
+        logging.debug("DATA DUMP: %s" % (stripList))
+
         return {'stripList': stripList}
 
 
 class View:
     @cherrypy.expose
-    def ajax_strip(self,comicId, stripNo=None):
+    def ajax_strip(self, comicId, stripNo=None):
         return "<img></img>"
 
     @cherrypy.expose
@@ -76,29 +75,49 @@ class View:
         prevStrip = None
         nextStrip = None
 
-        myDB = db.DBConnection()
+        myDB = db.DBConnection(row_type="dict")
 
         if not comicId:
-            raise cherrypy.HTTPError(400, "A user id was expected but not supplied.")
+            raise cherrypy.HTTPError(400, "A comic id was expected but not supplied.")
 
-        comicTitle = myDB.select("SELECT id, name FROM comic_list WHERE id=(?) LIMIT 1", (comicId,))[0][1]
-        lastStrip = myDB.select("SELECT strip_no FROM comic_strips WHERE comic_id=(?) ORDER BY strip_no DESC LIMIT 1", (comicId,))[0][0]
+        comicTitle = myDB.select("SELECT name FROM comic_list WHERE id=(?) LIMIT 1", (comicId,))
+        lastStrip = myDB.select("SELECT strip_no FROM comic_strips WHERE comic_id=(?) ORDER BY strip_no DESC LIMIT 1", (comicId,))
         lastView = myDB.select("SELECT last_strip FROM view_cache WHERE comic_id=(?)", (comicId,))
 
+        if lastStrip is not None:
+            lastStrip = lastStrip[0]['strip_no']
+
+        if comicTitle is not None:
+            comicTitle = comicTitle[0]['name']
+
         if stripNo is not None:
-            comicStrip = myDB.select("SELECT location FROM comic_strips WHERE comic_id=(?) and strip_no =(?)", (comicId, stripNo, ))[0][0]
+            comicStrip = myDB.select("SELECT location FROM comic_strips WHERE comic_id=(?) and strip_no =(?)", (comicId, stripNo, ))
             stripNo = int(stripNo)
+            update_cache(comicId, stripNo)
         else:
-            comicStrip = myDB.select("SELECT location FROM comic_strips WHERE comic_id=(?) and strip_no = 1", (comicId, ))[0][0]
-            stripNo = int(1)
+            if not lastView:
+                comicStrip = myDB.select("SELECT location FROM comic_strips WHERE comic_id=(?) and strip_no = 1", (comicId, ))
+                stripNo = 1
+            else:
+                print "Found lastview"
+                comicStrip = myDB.select("SELECT location FROM comic_strips WHERE comic_id=(?) and strip_no = (?)", (comicId, lastView[0]['last_strip'], ))
+                stripNo = lastView[0]['last_strip']
+
+        if comicStrip is not None:
+            comicStrip = comicStrip[0]['location']
 
         nextStrip = stripNo + 1
 
         if nextStrip >= 1:
             prevStrip = stripNo - 1
 
+        print nextStrip
+        print prevStrip
+        print lastView
+        print lastStrip
+        print comicStrip
+
         logging.debug("DATA DUMP: %s %s" % (lastStrip, comicTitle))
-        update_cache(comicId, stripNo)
         return {'comicStrip': comicStrip, 'comicTitle': comicTitle, 'lastStrip': int(lastStrip), 'stripNo': int(stripNo), 'comicId': comicId, 'prevStrip': prevStrip, 'nextStrip': nextStrip}
 
 
@@ -106,51 +125,45 @@ def webInit():
     root = Root()
     root.view = View()
 
-    #logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG)
 
     # Empty Vars
-    comicId = None
-    the_db = os.path.join(os.path.dirname(os.path.abspath(__name__)),'comic.db')
+    #comicId = None
+    #the_db = os.path.join(os.path.dirname(os.path.abspath(__name__)), 'comic.db')
 
     settings = {
-       'global': {
-          'server.socket_port' : 8085,
-          'server.socket_host': "127.0.0.1",
-          'server.socket_file': "",
-          'server.socket_queue_size': 5,
-          'server.protocol_version': "HTTP/1.2",
-          'server.log_to_screen': False,
-          'server.log_file': "",
-          'server.reverse_dns': False,
-          'server.thread_pool': 10,
-          'server.environment': "development",
-          'tools.mako.collection_size': 500,
-          'tools.mako.directories': 'data/interface/',
-       },
-       '/images': {
-          'tools.staticdir.on': True,
-          'tools.staticdir.dir': '%s' % (os.path.join(os.path.dirname(os.path.abspath(__name__)),'strips')),
-    #      'tools.staticdir.dir': '%s' % (os.path.dirname(os.path.abspath(__name__))),
-       },
-       '/bootstrap': {
-          'tools.staticdir.on': True,
-          'tools.staticdir.dir': '%s' % (os.path.join(os.path.dirname(os.path.abspath(__name__)),'data/bootstrap')),
-       },
-
+        'global': {
+            'server.socket_port': 8085,
+            'server.socket_host': "127.0.0.1",
+            'server.socket_file': "",
+            'server.socket_queue_size': 5,
+            'server.protocol_version': "HTTP/1.2",
+            'server.log_to_screen': False,
+            'server.log_file': "",
+            'server.reverse_dns': False,
+            'server.thread_pool': 10,
+            'server.environment': "development",
+            'tools.mako.collection_size': 500,
+            'tools.mako.directories': 'data/interface/',
+        },
+        '/images': {
+            'tools.staticdir.on': True,
+            'tools.staticdir.dir': '%s' % (os.path.join(os.path.dirname(os.path.abspath(__name__)), 'strips')),
+            #'tools.staticdir.dir': '%s' % (os.path.dirname(os.path.abspath(__name__))),
+        },
+        '/bootstrap': {
+            'tools.staticdir.on': True,
+            'tools.staticdir.dir': '%s' % (os.path.join(os.path.dirname(os.path.abspath(__name__)), 'data/bootstrap')),
+        },
     }
 
-
     cherrypy.config.update(settings)
-
     #cherrypy.tree.mount(Root,'/',settings)
     #cherrypy.tree.mount(viewStrip,'/viewStrip',settings)
-
     #cherrypy.config.update({
     #      'tools.mako.collection_size': 500,
     #      'tools.mako.directories': 'data/interface/',
     #})
-
-
     #cherrypy.server.start()
     cherrypy.quickstart(root, config=settings)
 
