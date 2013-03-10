@@ -1,12 +1,12 @@
 import sys
 import os
 import threading
-import signal
+#import signal
 import locale
 
 import comicstrip
 
-from comicstrip import db
+#from comicstrip import db
 from comicstrip import thread_man
 from comicstrip import webserver
 
@@ -108,7 +108,10 @@ def main():
 
     comicstrip.start()
     webserver.webInit()
+    print "Waiting for input"
     raw_input()
+
+    webserver.webStop()
     sched.StopAllTasks()
 
 

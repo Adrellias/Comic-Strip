@@ -25,7 +25,12 @@ import comicstrip
 # First function is to find all the next links and build a list of them with the strip number they should be associated with.
 def page_find(comic_url):
     # This will run through all the next pages
-    parse_page = bs(requests.get(comic_url).text)
+    try:
+        parse_page = bs(requests.get(comic_url).text)
+    except:
+        next_page = None
+        return None
+
     parsed_url = urlparse.urlparse(comic_url)
 
     # First find all the links on the page

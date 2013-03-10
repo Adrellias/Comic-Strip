@@ -52,9 +52,26 @@ main = MakoLoader()
 cherrypy.tools.mako = cherrypy.Tool('on_start_resource', main)
 
 
+def redirect(abspath, *args, **KWs):
+    assert abspath[0] == '/'
+#    raise cherrypy.HTTPRedirect(comicstrip.WEB_ROOT + abspath, *args, **KWs)
+    raise cherrypy.HTTPRedirect("" + abspath, *args, **KWs)
+
+
 class Root:
     @cherrypy.expose
     @cherrypy.tools.mako(filename="home.html")
+    def index(self):
+        myDB = db.DBConnection(row_type="dict")
+        stripList = myDB.select("SELECT id,name FROM comic_list")
+        logging.debug("DATA DUMP: %s" % (stripList))
+
+        return {'stripList': stripList}
+
+
+class Config:
+    @cherrypy.expose
+    @cherrypy.tools.mako(filename="config.html")
     def index(self):
         myDB = db.DBConnection(row_type="dict")
         stripList = myDB.select("SELECT id,name FROM comic_list")
@@ -121,15 +138,18 @@ class View:
         return {'comicStrip': comicStrip, 'comicTitle': comicTitle, 'lastStrip': int(lastStrip), 'stripNo': int(stripNo), 'comicId': comicId, 'prevStrip': prevStrip, 'nextStrip': nextStrip}
 
 
-def webInit():
+class webInterface:
+
+    @cherrypy.expose
+    def index(self):
+        redirect("/root/")
     root = Root()
     root.view = View()
 
-    logging.basicConfig(level=logging.DEBUG)
 
-    # Empty Vars
-    #comicId = None
-    #the_db = os.path.join(os.path.dirname(os.path.abspath(__name__)), 'comic.db')
+def webInit():
+
+    logging.basicConfig(level=logging.DEBUG)
 
     settings = {
         'global': {
@@ -139,7 +159,7 @@ def webInit():
             'server.socket_queue_size': 5,
             'server.protocol_version': "HTTP/1.2",
             'server.log_to_screen': False,
-            'server.log_file': "",
+            'server.log_file': "weblog.log",
             'server.reverse_dns': False,
             'server.thread_pool': 10,
             'server.environment': "development",
@@ -149,7 +169,6 @@ def webInit():
         '/images': {
             'tools.staticdir.on': True,
             'tools.staticdir.dir': '%s' % (os.path.join(os.path.dirname(os.path.abspath(__name__)), 'strips')),
-            #'tools.staticdir.dir': '%s' % (os.path.dirname(os.path.abspath(__name__))),
         },
         '/bootstrap': {
             'tools.staticdir.on': True,
@@ -158,13 +177,13 @@ def webInit():
     }
 
     cherrypy.config.update(settings)
-    #cherrypy.tree.mount(Root,'/',settings)
-    #cherrypy.tree.mount(viewStrip,'/viewStrip',settings)
-    #cherrypy.config.update({
-    #      'tools.mako.collection_size': 500,
-    #      'tools.mako.directories': 'data/interface/',
-    #})
-    #cherrypy.server.start()
-    cherrypy.quickstart(root, config=settings)
+    cherrypy.tree.mount(webInterface(), '/', settings)
+    cherrypy.server.start()
+    cherrypy.server.wait()
 
     logging.debug("THIS IS A ERROR: %s" % (os.path.dirname(os.path.abspath(__name__))))
+
+
+def webStop():
+    logging.debug("Die! Die! Die!")
+    cherrypy.engine.exit()
