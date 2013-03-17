@@ -65,19 +65,24 @@ class Root:
         myDB = db.DBConnection(row_type="dict")
         stripList = myDB.select("SELECT id,name FROM comic_list")
         logging.debug("DATA DUMP: %s" % (stripList))
-
         return {'stripList': stripList}
 
 
 class Config:
     @cherrypy.expose
     @cherrypy.tools.mako(filename="config.html")
-    def index(self):
+    def index(self, **kwargs):
         myDB = db.DBConnection(row_type="dict")
-        stripList = myDB.select("SELECT id,name FROM comic_list")
+        stripList = myDB.select("SELECT * FROM comic_list")
         logging.debug("DATA DUMP: %s" % (stripList))
-
         return {'stripList': stripList}
+
+    @cherrypy.expose
+    @cherrypy.tools.mako(filename="edit.html")
+    def edit(self, comicId):
+        myDB = db.DBConnection(row_type="dict")
+        stripDetails = myDB.select("SELECT * FROM comic_list WHERE id=(?)", (comicId,))
+        return {'stripDetails': stripDetails[0]}
 
 
 class View:
@@ -145,6 +150,7 @@ class webInterface:
         redirect("/root/")
     root = Root()
     root.view = View()
+    root.config = Config()
 
 
 def webInit():
@@ -178,6 +184,7 @@ def webInit():
 
     cherrypy.config.update(settings)
     cherrypy.tree.mount(webInterface(), '/', settings)
+    #cherrypy.quickstart(root=webInterface(), config=settings)
     cherrypy.server.start()
     cherrypy.server.wait()
 
