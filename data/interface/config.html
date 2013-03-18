@@ -60,21 +60,22 @@
         <input name="web_port" type="text" placeholder="8080" value="${config_file['web_port']}">
         <label>Listening IP</label>
         <input name="web_host" type="text" placeholder="0.0.0.0" value="${config_file['web_host']}">
-        <span class="help-block">IP Web Interface should listen on</span>
+        <span class="help-inline">IP Web Interface should listen on</span>
         <label>Log Directory</label>
         <input name="log_dir" type="text" placeholder="logs" value="${config_file['log_dir']}">
-        <span class="help-block">Directory for log files</span>
+        <span class="help-inline">Directory for log files</span>
         <label>Web Interface Folder</label>
         <input name="comic_int" type="text" placeholder="data" value="${config_file['comic_int']}">
-        <span class="help-block">Folder where the web interface lives</span>
+        <span class="help-inline">Folder where the web interface lives</span>
         <label>Comic Dir</label>
         <input name="comic_dir" type="text" placeholder="strips" value="${config_file['comic_dir']}">
-        <span class="help-block">Folder where comic strips are stored</span>
+        <span class="help-inline">Folder where comic strips are stored</span>
         <label>Comic Database</label>
         <input name="comic_db" type="text" placeholder="comic.db" value="${config_file['comic_db']}">
-        <span class="help-block">Comic Datbase File</span>
+        <span class="help-inline">Comic Datbase File</span>
         <input name="update" type="hidden" value="upd_config">
-        <button type="submit" class="btn">Submit</button>
+        <br>
+        <button type="submit" class="btn btn-small">Submit</button>
       </fieldset>
       </form>
   </div>
@@ -112,6 +113,15 @@
              <td><a href="edit/${strip['id']}"><button class="btn btn-small btn-primary" type="button">Edit</button></a></td>
          </tr>
          %endfor
+         <tr>
+         <td><form class="form-inline"></td>
+         <td><input type="text" class="input-small" placeholder="Comic Name"></td>
+         <td><input type="text" class="input-small" placeholder="Folder"></td>
+         <td><input type="text" class="input-large" placeholder="http://webcomic.com/strip/1"></td>
+         <td><input type="text" class="input-small" placeholder="None"></td>
+         <td><button type="submit" class="btn btn-small btn-primary">Add</button></td>
+         </form>
+         </tr>
       </table>
   </div> <!-- /container -->
 

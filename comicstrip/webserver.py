@@ -1,6 +1,5 @@
 import os
 import cherrypy
-import logging
 import comicstrip
 from comicstrip import db
 
@@ -65,7 +64,7 @@ class Root:
     def index(self):
         myDB = db.DBConnection(row_type="dict")
         stripList = myDB.select("SELECT id,name FROM comic_list")
-        logging.debug("DATA DUMP: %s" % (stripList))
+        #logging.debug("DATA DUMP: %s" % (stripList))
         return {'stripList': stripList}
 
 
@@ -79,7 +78,7 @@ class Config:
 
         myDB = db.DBConnection(row_type="dict")
         stripList = myDB.select("SELECT * FROM comic_list")
-        logging.debug("DATA DUMP: %s" % (stripList))
+        #logging.debug("DATA DUMP: %s" % (stripList))
         return {'stripList': stripList, 'config_file': config_file}
 
     @cherrypy.expose
@@ -166,7 +165,7 @@ class View:
         print lastStrip
         print comicStrip
 
-        logging.debug("DATA DUMP: %s %s" % (lastStrip, comicTitle))
+        #logging.debug("DATA DUMP: %s %s" % (lastStrip, comicTitle))
         return {'comicStrip': comicStrip, 'comicTitle': comicTitle, 'lastStrip': int(lastStrip), 'stripNo': int(stripNo), 'comicId': comicId, 'prevStrip': prevStrip, 'nextStrip': nextStrip}
 
 
@@ -182,7 +181,7 @@ class webInterface:
 
 def webInit():
 
-    logging.basicConfig(level=logging.DEBUG)
+    #logging.basicConfig(level=logging.DEBUG)
 
     settings = {
         'global': {
@@ -191,13 +190,12 @@ def webInit():
             'server.socket_file': "",
             'server.socket_queue_size': 5,
             'server.protocol_version': "HTTP/1.2",
-            'log.screen': False,
-            'log_file': comicstrip.LOG_DIR,
-            'log.access_file': 'access.log',
-            'log.error_file': 'error.log',
             'server.reverse_dns': False,
             'server.thread_pool': 10,
             'server.environment': "development",
+            'log.screen': False,
+            'log.error_file': '%s' % (os.path.join(comicstrip.LOG_DIR, 'error.log')),
+            'log.access_file': '%s' % (os.path.join(comicstrip.LOG_DIR, 'access.log')),
             'tools.mako.collection_size': 500,
             'tools.mako.directories': comicstrip.COMIC_INT + "/interface",
         },
@@ -216,9 +214,7 @@ def webInit():
     cherrypy.server.start()
     cherrypy.server.wait()
 
-    logging.debug("THIS IS A ERROR: %s" % (os.path.dirname(os.path.abspath(__name__))))
-
 
 def webStop():
-    logging.debug("Die! Die! Die!")
+    #logging.debug("Die! Die! Die!")
     cherrypy.engine.exit()
