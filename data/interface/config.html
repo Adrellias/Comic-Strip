@@ -51,44 +51,69 @@
           </div><!--/.nav-collapse -->
         </div>
       </div>
-    </div>
-
-    <div class="container" align=center >
-        <table class="table table-hover">
-            <tr>
-                <th>
-                    id
-                </th>
-                <th>
-                    name
-                </th>
-                <th>
-                    path
-                </th>
-                <th>
-                    first page
-                </th>
-                <th>
-                    end page
-                </th>
-                <th>
-                </th>
-            </tr>
-           %for strip in stripList:
-           <tr>
-               <td>
-                   ${strip['id']}
-                   <!-- <img width="128" height="128" src="/images/${strip['name']}/1.jpg" class="img-polaroid"> -->
-               </td>
-               <td>${strip['name']}</td>
-               <td>${strip['path']}</td>
-               <td>${strip['first_page']}</td>
-               <td>${strip['end_page']}</td>
-               <td><a href="edit/${strip['id']}"><button class="btn btn-small btn-primary" type="button">Edit</button></a></td>
-           </tr>
-           %endfor
-        </table>
-    </div> <!-- /container -->
+  </div>
+  <div class="container">
+      <form name="update" action="/root/config/update" method="get">
+      <fieldset>
+        <legend>Config File</legend>
+        <label>Web Port</label>
+        <input name="web_port" type="text" placeholder="8080" value="${config_file['web_port']}">
+        <label>Listening IP</label>
+        <input name="web_host" type="text" placeholder="0.0.0.0" value="${config_file['web_host']}">
+        <span class="help-block">IP Web Interface should listen on</span>
+        <label>Log Directory</label>
+        <input name="log_dir" type="text" placeholder="logs" value="${config_file['log_dir']}">
+        <span class="help-block">Directory for log files</span>
+        <label>Web Interface Folder</label>
+        <input name="comic_int" type="text" placeholder="data" value="${config_file['comic_int']}">
+        <span class="help-block">Folder where the web interface lives</span>
+        <label>Comic Dir</label>
+        <input name="comic_dir" type="text" placeholder="strips" value="${config_file['comic_dir']}">
+        <span class="help-block">Folder where comic strips are stored</span>
+        <label>Comic Database</label>
+        <input name="comic_db" type="text" placeholder="comic.db" value="${config_file['comic_db']}">
+        <span class="help-block">Comic Datbase File</span>
+        <input name="update" type="hidden" value="upd_config">
+        <button type="submit" class="btn">Submit</button>
+      </fieldset>
+      </form>
+  </div>
+  <div class="container" align=center >
+      <table class="table table-hover">
+          <tr>
+              <th>
+                  id
+              </th>
+              <th>
+                  name
+              </th>
+              <th>
+                  path
+              </th>
+              <th>
+                  first page
+              </th>
+              <th>
+                  end page
+              </th>
+              <th>
+              </th>
+          </tr>
+         %for strip in stripList:
+         <tr>
+             <td>
+                 ${strip['id']}
+                 <!-- <img width="128" height="128" src="/images/${strip['name']}/1.jpg" class="img-polaroid"> -->
+             </td>
+             <td>${strip['name']}</td>
+             <td>${strip['path']}</td>
+             <td>${strip['first_page']}</td>
+             <td>${strip['end_page']}</td>
+             <td><a href="edit/${strip['id']}"><button class="btn btn-small btn-primary" type="button">Edit</button></a></td>
+         </tr>
+         %endfor
+      </table>
+  </div> <!-- /container -->
 
     <!-- Le javascript
     ================================================== -->

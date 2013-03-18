@@ -53,7 +53,7 @@
       </div>
     </div>
     <div class="container">
-  <form name="update" action="/root/config" method="get">
+  <form name="update" action="/root/config/update" method="get">
   <fieldset>
     <legend>Editing ${stripDetails['name']}</legend>
     <label>Comic Name</label>
@@ -67,6 +67,8 @@
     <label>Comic End Page URL</label>
     <input name="end_page" type="text" placeholder="http://webcomic.com/strip/" value="${stripDetails['end_page']}">
     <span class="help-block">This field is used when the comic strip wraps, around on reaching the last strip.</span>
+    <input name="update" type="hidden" value="upd_comic">
+    <input name="comic_id" type="hidden" value="${stripDetails['id']}">
     <button type="submit" class="btn">Submit</button>
   </fieldset>
 </form>

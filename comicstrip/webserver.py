@@ -1,15 +1,11 @@
 import os
 import cherrypy
 import logging
+import comicstrip
 from comicstrip import db
 
 #from mako.template import Template
 from mako.lookup import TemplateLookup
-
-
-def update_cache(comicId, stripNo):
-    myDB = db.DBConnection()
-    myDB.upsert('view_cache', {'comic_id': comicId, 'last_strip': stripNo}, {'comic_id': comicId})
 
 
 class MakoHandler(cherrypy.dispatch.LateParamPageHandler):
@@ -58,6 +54,11 @@ def redirect(abspath, *args, **KWs):
     raise cherrypy.HTTPRedirect("" + abspath, *args, **KWs)
 
 
+def update_cache(comicId, stripNo):
+    myDB = db.DBConnection()
+    myDB.upsert('view_cache', {'comic_id': comicId, 'last_strip': stripNo}, {'comic_id': comicId})
+
+
 class Root:
     @cherrypy.expose
     @cherrypy.tools.mako(filename="home.html")
@@ -71,11 +72,15 @@ class Root:
 class Config:
     @cherrypy.expose
     @cherrypy.tools.mako(filename="config.html")
-    def index(self, **kwargs):
+    def index(self):
+        config_file = {'web_port': comicstrip.WEB_PORT, 'web_host': comicstrip.WEB_HOST,
+                       'log_dir': comicstrip.LOG_DIR, 'comic_dir': comicstrip.COMIC_DIR,
+                       'comic_db': comicstrip.COMIC_DB, 'comic_int': comicstrip.COMIC_INT}
+
         myDB = db.DBConnection(row_type="dict")
         stripList = myDB.select("SELECT * FROM comic_list")
         logging.debug("DATA DUMP: %s" % (stripList))
-        return {'stripList': stripList}
+        return {'stripList': stripList, 'config_file': config_file}
 
     @cherrypy.expose
     @cherrypy.tools.mako(filename="edit.html")
@@ -83,6 +88,28 @@ class Config:
         myDB = db.DBConnection(row_type="dict")
         stripDetails = myDB.select("SELECT * FROM comic_list WHERE id=(?)", (comicId,))
         return {'stripDetails': stripDetails[0]}
+
+    @cherrypy.expose
+    def update(self, **kwargs):
+        myDB = db.DBConnection(row_type="dict")
+
+        if "upd_comic" in kwargs['update']:
+            myDB.upsert('comic_list', {'name': kwargs['name'],
+                                       'path': kwargs['folder'],
+                                       'first_page': kwargs['first_page'],
+                                       'end_page': kwargs['end_page']},
+                        {'id': kwargs['comic_id']})
+
+        if "upd_config" in kwargs['update']:
+            comicstrip.WEB_PORT = kwargs['web_port']
+            comicstrip.WEB_HOST = kwargs['web_host']
+            comicstrip.LOG_DIR = kwargs['log_dir']
+            comicstrip.COMIC_DIR = kwargs['comic_dir']
+            comicstrip.COMIC_DB = kwargs['comic_db']
+            comicstrip.COMIC_INT = kwargs['comic_int']
+            comicstrip.save_config()
+
+        redirect("/root/config/")
 
 
 class View:
@@ -159,18 +186,20 @@ def webInit():
 
     settings = {
         'global': {
-            'server.socket_port': 8085,
-            'server.socket_host': "127.0.0.1",
+            'server.socket_port': int(comicstrip.WEB_PORT),
+            'server.socket_host': comicstrip.WEB_HOST,
             'server.socket_file': "",
             'server.socket_queue_size': 5,
             'server.protocol_version': "HTTP/1.2",
-            'server.log_to_screen': False,
-            'server.log_file': "weblog.log",
+            'log.screen': False,
+            'log_file': comicstrip.LOG_DIR,
+            'log.access_file': 'access.log',
+            'log.error_file': 'error.log',
             'server.reverse_dns': False,
             'server.thread_pool': 10,
             'server.environment': "development",
             'tools.mako.collection_size': 500,
-            'tools.mako.directories': 'data/interface/',
+            'tools.mako.directories': comicstrip.COMIC_INT + "/interface",
         },
         '/images': {
             'tools.staticdir.on': True,
@@ -184,7 +213,6 @@ def webInit():
 
     cherrypy.config.update(settings)
     cherrypy.tree.mount(webInterface(), '/', settings)
-    #cherrypy.quickstart(root=webInterface(), config=settings)
     cherrypy.server.start()
     cherrypy.server.wait()
 

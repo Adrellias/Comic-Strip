@@ -45,7 +45,6 @@ def save_config():
 
     global WEB_PORT, WEB_HOST, LOG_DIR, COMIC_DIR, COMIC_DB, COMIC_INT
     conf_file = open(CFG_FILE, 'w')
-
     new_conf = ConfigParser()
     new_conf.add_section('General')
     new_conf.set('General', 'web_port', WEB_PORT)
