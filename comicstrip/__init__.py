@@ -35,7 +35,8 @@ WEB_PORT = 8080
 WEB_HOST = '0.0.0.0'
 LOG_DIR = 'logs'
 COMIC_DIR = 'strips'
-COMIC_INT = 'data'
+COMIC_INT = 'data/interface'
+COMIC_STATIC = 'data/interface/bootstrap'
 COMIC_DB = 'comic.db'
 INIT_LOCK = Lock()
 CFG_FILE = None
@@ -43,7 +44,7 @@ CFG_FILE = None
 
 def save_config():
 
-    global WEB_PORT, WEB_HOST, LOG_DIR, COMIC_DIR, COMIC_DB, COMIC_INT
+    global WEB_PORT, WEB_HOST, LOG_DIR, COMIC_DIR, COMIC_DB, COMIC_INT, COMIC_STATIC
     conf_file = open(CFG_FILE, 'w')
     new_conf = ConfigParser()
     new_conf.add_section('General')
@@ -52,6 +53,7 @@ def save_config():
     new_conf.set('General', 'log_dir', LOG_DIR)
     new_conf.set('General', 'comic_dir', COMIC_DIR)
     new_conf.set('General', 'comic_int', COMIC_INT)
+    new_conf.set('General', 'comic_static', COMIC_STATIC)
     new_conf.set('General', 'comic_db', COMIC_DB)
     new_conf.write(conf_file)
 
@@ -59,7 +61,7 @@ def save_config():
 
 
 def load_config():
-    global WEB_PORT, WEB_HOST, LOG_DIR, COMIC_DIR, COMIC_DB, COMIC_INT
+    global WEB_PORT, WEB_HOST, LOG_DIR, COMIC_DIR, COMIC_DB, COMIC_INT, COMIC_STATIC
 
     conf = ConfigParser()
     conf.read(CFG_FILE)
@@ -69,6 +71,7 @@ def load_config():
         LOG_DIR = conf.get('General', 'log_dir')
         COMIC_DIR = conf.get('General', 'comic_dir')
         COMIC_INT = conf.get('General', 'comic_int')
+        COMIC_STATIC = conf.get('General', 'comic_static')
         COMIC_DB = conf.get('General', 'comic_db')
 
         return True
@@ -112,9 +115,9 @@ def initialize():
 
         if load_config():
             # Lets create some directories
-            dirs = [COMIC_DIR, LOG_DIR, COMIC_INT]
+            dirs = [COMIC_DIR, LOG_DIR, COMIC_INT, COMIC_STATIC]
 
-            OPS_LIST = [WEB_PORT, LOG_DIR, COMIC_DIR, COMIC_DB, COMIC_INT]
+            OPS_LIST = [WEB_PORT, LOG_DIR, COMIC_DIR, COMIC_DB, COMIC_INT, COMIC_STATIC]
 
             for opts in OPS_LIST:
                 logger.log(u'Loaded: ' + opts)

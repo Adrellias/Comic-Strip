@@ -64,8 +64,8 @@ class Root:
     def index(self):
         myDB = db.DBConnection(row_type="dict")
         stripList = myDB.select("SELECT id,name FROM comic_list")
-        #logging.debug("DATA DUMP: %s" % (stripList))
-        return {'stripList': stripList}
+        path = "%s" % (os.path.join(os.path.dirname(os.path.abspath(__name__)), comicstrip.COMIC_STATIC))
+        return {'stripList': stripList, 'path': path}
 
 
 class Config:
@@ -74,7 +74,8 @@ class Config:
     def index(self):
         config_file = {'web_port': comicstrip.WEB_PORT, 'web_host': comicstrip.WEB_HOST,
                        'log_dir': comicstrip.LOG_DIR, 'comic_dir': comicstrip.COMIC_DIR,
-                       'comic_db': comicstrip.COMIC_DB, 'comic_int': comicstrip.COMIC_INT}
+                       'comic_db': comicstrip.COMIC_DB, 'comic_int': comicstrip.COMIC_INT,
+                       'comic_static': comicstrip.COMIC_STATIC}
 
         myDB = db.DBConnection(row_type="dict")
         stripList = myDB.select("SELECT * FROM comic_list")
@@ -106,7 +107,11 @@ class Config:
             comicstrip.COMIC_DIR = kwargs['comic_dir']
             comicstrip.COMIC_DB = kwargs['comic_db']
             comicstrip.COMIC_INT = kwargs['comic_int']
+            comicstrip.COMIC_STATIC = kwargs['comic_static']
             comicstrip.save_config()
+
+        if "add_new" in kwargs['update']:
+            pass
 
         redirect("/root/config/")
 
@@ -197,15 +202,15 @@ def webInit():
             'log.error_file': '%s' % (os.path.join(comicstrip.LOG_DIR, 'error.log')),
             'log.access_file': '%s' % (os.path.join(comicstrip.LOG_DIR, 'access.log')),
             'tools.mako.collection_size': 500,
-            'tools.mako.directories': comicstrip.COMIC_INT + "/interface",
+            'tools.mako.directories': comicstrip.COMIC_INT,
         },
         '/images': {
             'tools.staticdir.on': True,
             'tools.staticdir.dir': '%s' % (os.path.join(os.path.dirname(os.path.abspath(__name__)), 'strips')),
         },
-        '/bootstrap': {
+        '/static': {
             'tools.staticdir.on': True,
-            'tools.staticdir.dir': '%s' % (os.path.join(os.path.dirname(os.path.abspath(__name__)), 'data/bootstrap')),
+            'tools.staticdir.dir': '%s' % (os.path.join(os.path.dirname(os.path.abspath(__name__)), comicstrip.COMIC_STATIC)),
         },
     }
 
