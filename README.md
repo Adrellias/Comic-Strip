@@ -26,8 +26,7 @@ Features Included
  
 ## Dependencies
 
-To run comicStrip from source you will need Python 2.7.3+ and Mako 0.7.0+. The [binary releases][Mako] are standalone.
-
+To run comicStrip from source you will need Python 2.7.3+ and [Mako][Mako] 0.7.0+
 
 [cherrypy]: http://www.cherrypy.org
 [Sick-Beard]: http://sickbeard.com/
