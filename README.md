@@ -14,12 +14,12 @@ Features Included
 * Automaticaly download images and index them
 * Offline viewer via webinterface (Remembers last strip viewed)
 
-comicStrip uses the following projects
+**comicStrip uses the following projects**
 
 * [cherrypy][cherrypy]
 * http://www.makotemplates.org/download.html
 
-comicStrip borrows and re-uses code from
+**comicStrip borrows and re-uses code from**
 
 * [Sick-Beard][Sick-Beard]
 
