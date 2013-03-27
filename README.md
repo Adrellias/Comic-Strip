@@ -17,6 +17,7 @@ Features Included
 **comicStrip uses the following projects**
 
 * [cherrypy][cherrypy]
+* [requests][requests]
 * http://www.makotemplates.org/download.html
 
 **comicStrip borrows and re-uses code from**
@@ -25,5 +26,6 @@ Features Included
 
 [cherrypy]: http://www.cherrypy.org
 [Sick-Beard]: http://sickbeard.com/
+[requests]: http://docs.python-requests.org/en/latest/
 
 More info later..
