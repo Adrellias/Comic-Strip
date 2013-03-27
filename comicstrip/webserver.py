@@ -111,7 +111,10 @@ class Config:
             comicstrip.save_config()
 
         if "add_new" in kwargs['update']:
-            pass
+            myDB.action("INSERT INTO comic_list (path, first_page, name, \
+                        end_page) VALUES (?, ?, ?, ?)",
+                        (kwargs['folder'], kwargs['first_page'],
+                         kwargs['name'], kwargs['end_page']))
 
         redirect("/root/config/")
 

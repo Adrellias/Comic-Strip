@@ -100,6 +100,7 @@ def grab_strip(comic_id, outpath, strip_no, current_url, replace=False):
                  db_path = os.path.join(outpath, filename)
                  logger.log(u'PAGE: ' + current_url + 'IMAGE: ' + filename)
 
+                 # Check if image exists already and skip saving
                  if not os.path.exists(save_path):
                     strip.save(save_path)
                  else:

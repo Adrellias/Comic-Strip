@@ -116,11 +116,12 @@
          </tr>
          %endfor
          <tr>
-         <td><form class="form-inline"></td>
-         <td><input type="text" class="input-small" placeholder="Comic Name"></td>
-         <td><input type="text" class="input-small" placeholder="Folder"></td>
-         <td><input type="text" class="input-large" placeholder="http://webcomic.com/strip/1"></td>
-         <td><input type="text" class="input-small" placeholder="None"></td>
+         <td><form class="form-inline" name="update" action="/root/config/update" method="get"></td>
+         <td><input name="name" type="text" class="input-small" placeholder="Comic Name"></td>
+         <td><input name="folder" type="text" class="input-small" placeholder="Folder"></td>
+         <td><input name="first_page" type="text" class="input-large" placeholder="http://webcomic.com/strip/1"></td>
+         <td><input name="end_page" type="text" class="input-small" placeholder="None"></td>
+         <input name="update" type="hidden" value="add_new">
          <td><button type="submit" class="btn btn-small btn-primary">Add</button></td>
          </form>
          </tr>
