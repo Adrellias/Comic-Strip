@@ -33,5 +33,11 @@ To run comicStrip from source you will need Python 2.7.3+ and [Mako][Mako] 0.7.0
 [requests]: http://docs.python-requests.org/en/latest/
 [Mako]: http://www.makotemplates.org/download.html
 
+## Bugs
 
-More info later..
+Web interface will currently error out if the comic db is empty.
+Will fix this later. Like I said really early alpha.
+
+## Development Plan
+
+More info later
