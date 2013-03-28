@@ -3,7 +3,7 @@ import os
 import threading
 #import signal
 import locale
-
+import argparse
 import comicstrip
 
 #from comicstrip import db
@@ -98,22 +98,39 @@ def main():
     # Intialize some default options
     comicstrip.initialize()
 
-    # Make this shit a daemon if wanted
-    # daemonize()
+    # Process command line arguments
+    args_parser = argparse.ArgumentParser()
+    args_parser.add_argument("--daemonize", help="Run comicStrip in background",
+                             action="store_true")
+    args = args_parser.parse_args()
+
+    if not comicstrip.CFG_FILE:
+        comicstrip.CFG_FILE = os.path.join(comicstrip.DATA_DIR, "config.ini")
+
+    # Intialize some default options
+    comicstrip.initialize()
 
     # We would start up the web thread
 
     # Fire up all our threads
     sched = thread_man.Scheduler()
 
+    # Make this a daemon if wanted
+    if args.daemonize:
+        daemonize()
+
+    # We would start up the web thread
     comicstrip.start()
     webserver.webInit()
-    print "Waiting for input"
-    raw_input()
 
-    webserver.webStop()
-    sched.StopAllTasks()
+    # Fire up all our threads
+    sched = thread_man.Scheduler()
 
+    if not args.daemonize:
+        print "Waiting for input"
+        raw_input()
+        webserver.webStop()
+        sched.StopAllTasks()
 
 if __name__ == "__main__":
     main()
