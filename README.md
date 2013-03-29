@@ -35,14 +35,14 @@ To run comicStrip from source you will need Python 2.7.3+ and [Mako][Mako] 0.7.0
 
 ## Bugs
 
-*Web interface will currently error out if the comic db is empty.
-*Will fix this later. Like I said really early alpha.
-*It takes no command line arguments at the moment and spawns in the forground.
+* Web interface will currently error out if the comic db is empty.
+* Will fix this later. Like I said really early alpha.
+* It takes no command line arguments at the moment and spawns in the forground.
 
 ## Development Plan
 
-*Move app logging bits to use the cherrypy log handler
-*Add field to specify which element is the comic image, next, prevs links
-*Add ability to set the with, height constraints on image dedection if element
+* Move app logging bits to use the cherrypy log handler
+* Add field to specify which element is the comic image, next, prevs links
+* Add ability to set the with, height constraints on image dedection if element
 detection fail's
-*Add command line arguments
+* Add command line arguments
