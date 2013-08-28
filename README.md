@@ -21,6 +21,8 @@ Features Included
 * [Beautifull Soup][beautifulsoup]
 * http://www.makotemplates.org/download.html
 
+If you have pip installed, then simply run `pip install -r requirements.txt`.
+
 **comicStrip borrows and re-uses code from:**
 
 * [Sick-Beard][Sick-Beard]
