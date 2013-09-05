@@ -22,7 +22,8 @@ from comicstrip import logger
 import comicstrip
 
 
-# First function is to find all the next links and build a list of them with the strip number they should be associated with.
+# First function is to find all the next links and build a list of
+# them with the strip number they should be associated with.
 def page_find(comic_url):
     # This will run through all the next pages
     try:
