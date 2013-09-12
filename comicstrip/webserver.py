@@ -56,6 +56,7 @@ def redirect(abspath, *args, **KWs):
 def update_cache(comicId, stripNo):
     myDB = db.DBConnection()
     myDB.upsert('view_cache', {'comic_id': comicId, 'last_strip': stripNo}, {'comic_id': comicId})
+    myDB.connection.close()
 
 
 class Root:
@@ -65,6 +66,7 @@ class Root:
         myDB = db.DBConnection(row_type="dict")
         stripList = myDB.select("SELECT id,name FROM comic_list")
         path = "%s" % (os.path.join(os.path.dirname(os.path.abspath(__name__)), comicstrip.COMIC_STATIC))
+        myDB.connection.close()
         return {'stripList': stripList, 'path': path}
 
 
@@ -80,6 +82,7 @@ class Config:
         myDB = db.DBConnection(row_type="dict")
         stripList = myDB.select("SELECT * FROM comic_list")
         #logging.debug("DATA DUMP: %s" % (stripList))
+        myDB.connection.close()
         return {'stripList': stripList, 'config_file': config_file}
 
     @cherrypy.expose
@@ -87,6 +90,7 @@ class Config:
     def edit(self, comicId):
         myDB = db.DBConnection(row_type="dict")
         stripDetails = myDB.select("SELECT * FROM comic_list WHERE id=(?)", (comicId,))
+        myDB.connection.close()
         return {'stripDetails': stripDetails[0]}
 
     @cherrypy.expose
@@ -117,6 +121,7 @@ class Config:
                          kwargs['name'], kwargs['end_page']))
 
         redirect("/root/config/")
+        myDB.connection.close()
 
 
 class View:
@@ -174,6 +179,7 @@ class View:
         print comicStrip
 
         #logging.debug("DATA DUMP: %s %s" % (lastStrip, comicTitle))
+        myDB.connection.close()
         return {'comicStrip': comicStrip, 'comicTitle': comicTitle, 'lastStrip': int(lastStrip), 'stripNo': int(stripNo), 'comicId': comicId, 'prevStrip': prevStrip, 'nextStrip': nextStrip}
 
 

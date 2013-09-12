@@ -92,6 +92,7 @@ def db_check():
 
     for query in queries:
         connection.action(query)
+    connection.connection.close()
 
 
 def dir_check(path):

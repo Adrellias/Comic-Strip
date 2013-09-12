@@ -84,7 +84,6 @@ class DBConnection:
                     #logger.log(u"Fatal error executing query: " + ex(e), logger.ERROR)
                     raise
             return sqlResult
-        self.connection.close()
 
 
     def select(self, query, args=None):

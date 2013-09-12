@@ -147,6 +147,7 @@ def update_engine(comic_id=None,que=None):
 
         for strip_no in url_list.keys():
             myDB.upsert('comic_strips', grab_strip(info['id'], info['path'], strip_no, url_list[strip_no]), { 'comic_id': info['id'], 'strip_no': strip_no })
+    myDB.connection.close()
 
 
 def test():
