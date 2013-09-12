@@ -45,6 +45,7 @@ class DBConnection:
 
         self.filename = filename
         self.connection = sqlite3.connect(dbFilename(filename), 20)
+
         if row_type == "dict":
             self.connection.row_factory = self._dict_factory
         else:
@@ -82,8 +83,8 @@ class DBConnection:
                 except sqlite3.DatabaseError, e:
                     #logger.log(u"Fatal error executing query: " + ex(e), logger.ERROR)
                     raise
-
             return sqlResult
+        self.connection.close()
 
 
     def select(self, query, args=None):
