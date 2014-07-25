@@ -110,11 +110,6 @@ def main():
     # Intialize some default options
     comicstrip.initialize()
 
-    # We would start up the web thread
-
-    # Fire up all our threads
-    sched = thread_man.Scheduler()
-
     # Make this a daemon if wanted
     if args.daemonize:
         daemonize()
@@ -122,9 +117,6 @@ def main():
     # We would start up the web thread
     comicstrip.start()
     webserver.webInit()
-
-    # Fire up all our threads
-    sched = thread_man.Scheduler()
 
     if not args.daemonize:
         print "Waiting for input"
